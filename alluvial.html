@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Alluvial Plot</title>
+        <!-- <link rel="stylesheet" href="style.css"> -->
+        <style>
+            html {
+                background-color: hsl(0, 0%, 0%);
+                background-color: white;
+            }
+            body {
+                display: flex;
+                justify-content: center;
+            }
+            div#container {
+                height: 500px;
+                width: 500px;
+                background-color: gray;
+                margin: 200px auto auto auto;
+            }
+
+
+
+            .link {
+                fill: none;
+                stroke: #000;
+                stroke-opacity: .2;
+            }
+            .link:hover {
+                stroke-opacity: .5;
+            }
+        </style>
+    </head>
+    <body>
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+        <!-- <div id="container"></div> -->
+        <div id="my_dataviz"></div>
+        
+        <!-- Load the sankey.js function -->
+        <script src="https://cdn.jsdelivr.net/gh/holtzy/D3-graph-gallery@master/LIB/sankey.js"></script>
+
+        <script>
+            // import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+
+
+            const container = document.querySelector('div#container');
+
+
+
+            // const dims = {
+            //     height: 450,
+            //     width: 450
+            // };
+            // const margins = {
+            //     top: (container.clientHeight - dims.height) / 2,
+            //     right: (container.clientWidth - dims.width) / 2,
+            //     bottom: (container.clientHeight - dims.height) / 2,
+            //     left: (container.clientWidth - dims.width) / 2,
+            // };
+            
+            // // create area for visualization
+            // const canvas = d3.select(container)
+            //   .append('svg')
+            //   .attr('height', dims.height)
+            //   .attr('width', dims.width)
+            //   .style('background-color', 'white')
+            //   .attr('transform', `translate(${margins.left}, ${margins.top})`)
+
+
+            // create initial group container
+            // const svg = canvas.append('g')
+
+            // Loading in th esankey plot example from: 
+            // set the dimensions and margins of the graph
+            var margin = {top: 10, right: 10, bottom: 10, left: 10},
+                width = 1000 - margin.left - margin.right,
+                height = 480 - margin.top - margin.bottom;
+
+            // append the svg object to the body of the page
+            var svg = d3.select("#my_dataviz").append("svg")
+                        .attr("width", width + margin.left + margin.right)
+                        .attr("height", height + margin.top + margin.bottom)
+                        .append("g")
+                        .attr("transform",
+                            "translate(" + margin.left + "," + margin.top + ")");
+
+
+            // Color scale used
+            var color = d3.scaleOrdinal(d3.schemeCategory20);
+                    
+            console.log(d3.sankey)
+            // Set the sankey diagram properties
+            var sankey = d3.sankey()
+                .nodeWidth(10)
+                .nodePadding(10)
+                .size([width, height]);
+
+            // load the data
+            graph = {
+                "nodes":[
+                    // GCCs
+                    {"node":0,"name":"GCC0"},
+                    {"node":1,"name":"GCC1"},
+                    {"node":2,"name":"GCC2"},
+                    {"node":3,"name":"GCC3"},
+                    {"node":4,"name":"GCC4"},
+                    // // TTDs
+                    // {"node":11,"name":"TTD1"},
+                    // {"node":12,"name": "TTD2"},
+                    // {"node":13,"name": "TTD3"},
+
+                    // //Technologies
+                    {"node":5,"name":"WGS, bulk, short-read"},
+                    {"node":6,"name": "WGS, long-read, ONT"},
+                    {"node":7,"name": "WGS, long-read, PacBio"},
+                    {"node":8,"name": "RNA Seq, bulk"},
+                    {"node":9,"name": "SCWGS, DLP+"},
+                    {"node":10,"name": "Hi-C"},
+                    {"node":11,"name": "NT-Seq"},
+
+                    // Molecular features
+                    {"node":12,"name":"SNV"},
+                    {"node":13,"name":"InDel"},
+                    {"node":14,"name":"CNV"},
+                    {"node":15,"name":"SV/TRA"},
+                    {"node":16,"name":"SV/DuP"},
+                    {"node":17,"name":"MEI"},
+                    {"node":18,"name":"Gene-Expression/Transctipt"}
+                ],
+                "links":[
+
+                    // Data Generators -> Techonlogy
+                    {"source":0,"target":5,"value":1},
+                    {"source":0,"target":6,"value":1},
+                    {"source":0,"target":7,"value":1},
+                    {"source":1,"target":6,"value":1},
+                    {"source":1,"target":8,"value":1},
+                    {"source":1,"target":10,"value":1},
+                    {"source":2,"target":5,"value":1},
+                    {"source":2,"target":6,"value":1},
+                    {"source":2,"target":7,"value":1},
+                    {"source":3,"target":6,"value":1},
+                    {"source":3,"target":7,"value":1},
+                    {"source":3,"target":8,"value":1},
+                    {"source":4,"target":9,"value":1},
+                    {"source":4,"target":10,"value":1},
+                    {"source":4,"target":11,"value":1},
+
+                    // Techonlogy (5-11) -> Molecular features (12-18)
+                    {"source":5,"target":18,"value":1},
+                    {"source":5,"target":15,"value":1},
+                    {"source":5,"target":12,"value":1},
+                    {"source":6,"target":17,"value":1},
+                    {"source":6,"target":14,"value":1},
+                    {"source":7,"target":16,"value":1},
+                    {"source":8,"target":15,"value":1},
+                    {"source":9,"target":14,"value":1},
+                    {"source":10,"target":13,"value":1},
+                    {"source":10,"target":14,"value":1},
+                    {"source":11, "target":12,"value":1},
+                    {"source":11, "target":13,"value":1}
+                ]
+            }
+
+            // Constructs a new Sankey generator with the default settings.
+            sankey
+                .nodes(graph.nodes)
+                .links(graph.links)
+                .layout(1);
+
+            // add in the links
+            var link = svg.append("g")
+                .selectAll(".link")
+                .data(graph.links)
+                .enter()
+                .append("path")
+                .attr("class", "link")
+                .attr("d", sankey.link() )
+                .style("stroke-width", function(d) { return 3 })
+                // .style("stroke-width", function(d) { return Math.max(1, d.dy); })
+                .sort(function(a, b) { return b.dy - a.dy; });
+
+            // add in the nodes
+            var node = svg.append("g")
+                .selectAll(".node")
+                .data(graph.nodes)
+                .enter().append("g")
+                .attr("class", "node")
+                .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+                .call(d3.drag()
+                    .subject(function(d) { return d; })
+                    .on("start", function() { this.parentNode.appendChild(this); })
+                    .on("drag", dragmove));
+
+            // add the rectangles for the nodes
+            node
+                .append("rect")
+                .attr("height", function(d) { return d.dy; })
+                .attr("width", sankey.nodeWidth())
+                .style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
+                .style("stroke", function(d) { return d3.rgb(d.color).darker(2); })
+                // Add hover text
+                .append("title")
+                .text(function(d) { return d.name + "\n" + "There is " + d.value + " stuff in this node"; });
+
+            // add in the title for the nodes
+                node
+                .append("text")
+                    .attr("x", -6)
+                    .attr("y", function(d) { return d.dy / 2; })
+                    .attr("dy", ".35em")
+                    .attr("text-anchor", "end")
+                    .attr("transform", null)
+                    .text(function(d) { return d.name; })
+                .filter(function(d) { return d.x < width / 2; })
+                    .attr("x", 6 + sankey.nodeWidth())
+                    .attr("text-anchor", "start");
+
+            // the function for moving the nodes
+            function dragmove(d) {
+                d3.select(this)
+                .attr("transform",
+                        "translate("
+                        + d.x + ","
+                        + (d.y = Math.max(
+                            0, Math.min(height - d.dy, d3.event.y))
+                            ) + ")");
+                sankey.relayout();
+                link.attr("d", sankey.link() );
+            }
+        </script>
+    </body>
+</html>
